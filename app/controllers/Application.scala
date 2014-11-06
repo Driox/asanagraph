@@ -32,7 +32,6 @@ object Application extends Controller {
   def byProject(project: String) = Action.async {
     StatisticService.filterByProjectName(project)
       .map(DataTransformer.formatTaskToJson)
-//      .map(json => Ok(Json.toJson(json)))
       .map(json => Ok(views.html.project(project, json)))
 
 //    StatisticService.filterByProjectNameJson(project)

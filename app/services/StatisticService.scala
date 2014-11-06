@@ -14,8 +14,6 @@ object StatisticService {
 
   import Mapper._
 
-  
-
   def tasksByProject() = {
     AsanaService.projectList().flatMap { Future.traverse(_) { project => projectIdToTasks(project) } }
   }
