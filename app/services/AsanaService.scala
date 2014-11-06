@@ -7,10 +7,9 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import scala.concurrent.Future
 import play.api.libs.functional.syntax._
+import models._
+import java.util.Date
 
-case class Project(id: Long, name: String)
-
-case class Task(id: Long, name: String)
 
 /**
  * API : http://developer.asana.com/documentation/#tasks
@@ -19,19 +18,13 @@ case class Task(id: Long, name: String)
  */
 object AsanaService {
 
+  import Mapper._
+  
   val baseUrl = "https://app.asana.com/api/1.0"
 
   val API_KEY = play.api.Play.current.configuration.getString("asana.api.key").getOrElse("")
   val WORKSPACE_ID = play.api.Play.current.configuration.getString("asana.api.workspace.id").getOrElse("")
   val ASSIGNEE = play.api.Play.current.configuration.getString("asana.api.assignee").getOrElse("")
-
-  implicit val projectReader = (
-    (__ \ "id").read[Long] and
-    (__ \ "name").read[String])(Project)
-
-  implicit val taskReader = (
-    (__ \ "id").read[Long] and
-    (__ \ "name").read[String])(Task)
 
   def getWorkspaceId() = {
     me().map(me => me \ "data" \ "workspaces" \ "id" toString)
@@ -46,9 +39,9 @@ object AsanaService {
     WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json)
   }
 
-  def task(id: String) = {
+  def task(id: String):Future[Task] = {
     val url = s"$baseUrl/tasks/$id"
-    WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json)
+    WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json.as[Task])
   }
 
   def me() = {

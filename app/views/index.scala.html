@@ -1,7 +1,14 @@
-@(message: String)
+@(projects:List[Project])
 
-@main("Welcome to Play") {
+@main("Asana Graph") {
 
-    @message
-
+	<h1>Projects</h1>
+	
+	<div>
+		<ul id="project-list">
+			@for( project <- projects) {
+				<li><a href="@{routes.Application.byProject(project.name)}">@{project.name}</a></li>
+			}
+		</ul>
+	</div>
 }
