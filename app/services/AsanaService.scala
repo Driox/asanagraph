@@ -10,7 +10,6 @@ import play.api.libs.functional.syntax._
 import models._
 import java.util.Date
 
-
 /**
  * API : http://developer.asana.com/documentation/#tasks
  * WS : https://www.playframework.com/documentation/2.2.x/ScalaWS
@@ -19,7 +18,7 @@ import java.util.Date
 object AsanaService {
 
   import Mapper._
-  
+
   val baseUrl = "https://app.asana.com/api/1.0"
 
   val API_KEY = play.api.Play.current.configuration.getString("asana.api.key").getOrElse("")
@@ -39,9 +38,17 @@ object AsanaService {
     WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json)
   }
 
-  def task(id: String):Future[Task] = {
+  def taskJson(id: String) = {
     val url = s"$baseUrl/tasks/$id"
-    WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json.as[Task])
+    WS.url(url).withAuth(API_KEY, "", AuthScheme.BASIC).get.map(response => response.json)
+  }
+
+  def task(id: String): Future[Task] = {
+    taskJson(id).map { json =>
+      val t = (json \ "data").as[Task]
+      println("Tasks t : " + t)
+      t
+    }
   }
 
   def me() = {

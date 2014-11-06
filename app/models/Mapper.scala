@@ -16,5 +16,13 @@ package object Mapper {
     (__ \ "id").read[Long] and
     (__ \ "name").read[String] and
     (__ \ "due_on").readNullable[Date] and
-    (__ \ "completed").readNullable[Boolean])(Task)
+    (__ \ "completed_at").readNullable[Date] and
+    (__ \ "point").readNullable[Int])(Task)
+
+  implicit val taskWrites: Writes[Task] = (
+    (JsPath \ "id").write[Long] and
+    (JsPath \ "name").write[String] and
+    (JsPath \ "due_on").writeNullable[Date] and
+    (JsPath \ "completed_at").writeNullable[Date] and 
+    (JsPath \ "point").writeNullable[Int])(unlift(Task.unapply))
 }
