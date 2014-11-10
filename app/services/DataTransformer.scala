@@ -43,18 +43,18 @@ object DataTransformer {
     (tasks.map(t => t.due_on) ++ tasks.map(t => t.completed_at)).filter(x => x.isDefined).map(x => x.get)
   }
 
-  private def initMap(dateList: List[Date]) = {
-    dateList.map(d => (d, (0, 0))).toMap
+  private def initMap(dateList: List[Date]): Map[Date, (Double, Double)] = {
+    dateList.map(d => (d, (0.0, 0.0))).toMap
   }
 
-  private def addTaskPlannedInfoToDataMap(task: Task, inputDataMap: Map[Date, (Int, Int)]) = {
+  private def addTaskPlannedInfoToDataMap(task: Task, inputDataMap: Map[Date, (Double, Double)]) = {
     var dataMap = inputDataMap
 
     task.due_on.map { key =>
       dataMap = dataMap.map {
         case (k, v) => k -> {
           if (k == key || k.after(key))
-            (v._1 + task.point.getOrElse(1), v._2)
+            (v._1 + task.point, v._2)
           else
             v
         }
@@ -64,14 +64,14 @@ object DataTransformer {
     dataMap
   }
 
-  private def addTaskDoneInfoToDataMap(task: Task, inputDataMap: Map[Date, (Int, Int)]) = {
+  private def addTaskDoneInfoToDataMap(task: Task, inputDataMap: Map[Date, (Double, Double)]) = {
     var dataMap = inputDataMap
 
     task.completed_at.map { key =>
       dataMap = dataMap.map {
         case (k, v) => k -> {
           if (k == key || k.after(key))
-            (v._1, v._2 + task.point.getOrElse(1))
+            (v._1, v._2 + task.point)
           else
             v
         }
@@ -81,12 +81,12 @@ object DataTransformer {
     dataMap
   }
 
-  private def dataMapToJson(dataMap: Map[Date, (Int, Int)]): JsArray = {
+  private def dataMapToJson(dataMap: Map[Date, (Double, Double)]): JsArray = {
     dataMap.foldLeft(JsArray())((jsArray, mapElem) =>
       jsArray :+ dataToJson(mapElem._1, mapElem._2))
   }
 
-  def dataToJson(date: Date, values: (Int, Int)): JsObject = {
+  def dataToJson(date: Date, values: (Double, Double)): JsObject = {
     Json.obj(
       "day" -> Json.toJson(date),
       "planned" -> Json.toJson(values._1),

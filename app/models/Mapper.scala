@@ -12,17 +12,26 @@ package object Mapper {
     (__ \ "id").read[Long] and
     (__ \ "name").read[String])(Project)
 
+  implicit val tagReader = (
+    (__ \ "id").read[Long] and
+    (__ \ "name").read[String])(Tag)
+
   implicit val taskReader = (
     (__ \ "id").read[Long] and
     (__ \ "name").read[String] and
     (__ \ "due_on").readNullable[Date] and
     (__ \ "completed_at").readNullable[Date] and
-    (__ \ "point").readNullable[Int])(Task)
+    (__ \ "tags").readNullable[List[Tag]])(Task)
+
+  implicit val tagWrites: Writes[Tag] = (
+    (JsPath \ "id").write[Long] and
+    (JsPath \ "name").write[String])(unlift(Tag.unapply))
 
   implicit val taskWrites: Writes[Task] = (
     (JsPath \ "id").write[Long] and
     (JsPath \ "name").write[String] and
     (JsPath \ "due_on").writeNullable[Date] and
-    (JsPath \ "completed_at").writeNullable[Date] and 
-    (JsPath \ "point").writeNullable[Int])(unlift(Task.unapply))
+    (JsPath \ "completed_at").writeNullable[Date] and
+    (JsPath \ "tags").writeNullable[List[Tag]])(unlift(Task.unapply))
+
 }

@@ -45,10 +45,7 @@ object AsanaService {
 
   def task(id: String): Future[Task] = {
     taskJson(id).map { json =>
-      val t = (json \ "data").as[Task]
-      
-      println("Tasks t : " + t)
-      t
+      (json \ "data").as[Task]
     }
   }
 
